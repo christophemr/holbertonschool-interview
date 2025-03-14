@@ -3,6 +3,8 @@
 Defines recursive function to query the Reddit API,
 parse titles of all hot articles, and print sorted count
 """
+import json
+import requests
 
 
 def count_words(subreddit, word_list, after=None, count=None):
@@ -16,11 +18,12 @@ def count_words(subreddit, word_list, after=None, count=None):
         after: indicates next starting point to get data after
         count: dictionary of current count of keyword
     """
-    import json
-    import requests
-
     if count is None:
         count = {}
+
+    headers = {
+        "User-Agent": "linux:0-count:v1.0 (by /u/your_reddit_username)"
+    }
 
     if after is None:
         sub_URL = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
@@ -29,8 +32,7 @@ def count_words(subreddit, word_list, after=None, count=None):
             subreddit, after)
 
     try:
-        subreddit_info = requests.get(sub_URL,
-                                      headers={"user-agent": "user"},
+        subreddit_info = requests.get(sub_URL, headers=headers,
                                       allow_redirects=False)
         # Raise an HTTPError for bad responses
         subreddit_info.raise_for_status()
@@ -76,7 +78,7 @@ def count_words(subreddit, word_list, after=None, count=None):
                     elif count[k] == int(result[i].split(' ')[1]):
                         alpha_list = [k, result[i].split(' ')[0]]
                         j = 1
-                        while i + j < len(result) and \
+                        while i + j < len(result) and\
                                 count[k] == int(result[i + j].split(' ')[1]):
                             alpha_list.append(result[i + j].split(' ')[0])
                             j += 1
